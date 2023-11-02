@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
@@ -24,6 +26,7 @@ class AuthController extends Controller
             DB::table('users')->insert([
                 'name' => $credentials['name'],
                 'email' => $credentials['email'],
+                'username' => Str::random(8),
                 'password' => bcrypt($credentials['password']),
                 'chats_id' => Str::uuid(),
                 'created_at' => now(),
@@ -53,15 +56,26 @@ class AuthController extends Controller
 
         if (!$token = auth()->attempt($credentials)) {
             return response()->json([
-                'error' => [
+                'status' => 'success',
+                'errors' => [
                     'email' => ['These credentials do not match our records.'],
                 ],
             ], Response::HTTP_UNAUTHORIZED);
         }
 
         return response()->json([
+            "user" => new UserResource(Auth::user()),
             'access_token' => $token,
-            'expires_in' => auth()->factory()->getTTL() * 60
+            'expires_in' => auth()->factory()->getTTL() * 60,
+            'message' => 'Your Login Success',
+            'status' => 'success',
         ], Response::HTTP_OK);
+    }
+
+    public function me()
+    {
+        return response()->json([
+            "user" => new UserResource(Auth::user())
+        ]);
     }
 }
