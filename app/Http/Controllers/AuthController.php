@@ -78,4 +78,26 @@ class AuthController extends Controller
             "user" => new UserResource(Auth::user())
         ]);
     }
+
+    public function refresh()
+    {
+        $token = auth()->refresh();
+        try {
+            return response()->json([
+                'access_token' => $token,
+                'expires_in' => auth()->factory()->getTTL() * 60,
+                'message' => 'Token successfully updated.',
+                'status' => 'success',
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json(['error' => 'Token update failed'], 500);
+        }
+    }
+
+    public function logout()
+    {
+        auth()->logout(true);
+
+        return response()->json(['message' => 'Successfully logged out'], Response::HTTP_OK);
+    }
 }

@@ -11,5 +11,7 @@ use Illuminate\Support\Facades\Route;
 Route::controller(AuthController::class)->middleware('auth:api')->prefix('auth')->group(function () {
     Route::post('register', 'register')->withoutMiddleware('auth:api')->name('auth.register');
     Route::post('login', 'login')->withoutMiddleware('auth:api')->name('auth.login');
+    Route::post('refresh', 'refresh')->withoutMiddleware('auth:api')->name('auth.refresh');
+    Route::post('logout', 'logout')->name('auth.logout');
     Route::get('me', 'me')->name('auth.me');
 });
