@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('friends', function (Blueprint $table) {
             $table->id();
+            $table->foreignUuid('user_id')->constrained('users', 'user_id');
+            $table->foreignUuid('friend_id')->constrained('users', 'user_id');
+            $table->boolean('status')->default(false);
             $table->timestamps();
         });
     }
