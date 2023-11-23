@@ -28,7 +28,7 @@ class AuthController extends Controller
                 'email' => $credentials['email'],
                 'username' => Str::random(8),
                 'password' => bcrypt($credentials['password']),
-                'chats_id' => Str::uuid(),
+                'user_id' => Str::uuid(),
                 'created_at' => now(),
                 'updated_at' => now()
             ]);

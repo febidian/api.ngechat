@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\FriendsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -21,3 +22,10 @@ Route::controller(ChatController::class)->middleware(('auth:api'))
     ->group(function () {
         Route::post('chat/{user:username}', 'store')->name('chat.store');
     });
+
+
+Route::controller(FriendsController::class)->middleware('auth:api')->group(function () {
+    Route::get('friends', 'index')->name("friend.index");
+    Route::post('friends/{user:username}', 'addFriend')->name("friend.addFriend");
+    Route::get('friends/search/{username}', 'searchPeople')->name("friend.search");
+});
