@@ -9,11 +9,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, BroadcastsEvents;
+    use HasApiTokens, HasFactory, Notifiable, BroadcastsEvents, HasEagerLimit;
 
     /**
      * The attributes that are mass assignable.
@@ -74,5 +75,15 @@ class User extends Authenticatable implements JWTSubject
     public function friends()
     {
         return $this->hasMany(Friends::class, 'friend_id', 'user_id');
+    }
+
+    public function userFriends()
+    {
+        return $this->hasOne(Friends::class, 'user_id', 'user_id');
+    }
+
+    public function friendOf()
+    {
+        return $this->hasOne(Friends::class, 'friend_id', 'user_id');
     }
 }

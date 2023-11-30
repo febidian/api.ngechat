@@ -26,6 +26,8 @@ Route::controller(ChatController::class)->middleware(('auth:api'))
 
 Route::controller(FriendsController::class)->middleware('auth:api')->group(function () {
     Route::get('friends', 'index')->name("friend.index");
-    Route::post('friends/{user:username}', 'addFriend')->name("friend.addFriend");
-    Route::get('friends/search/{username}', 'searchPeople')->name("friend.search");
+    Route::post('friends/sendfriendrequest/{user:username?}', 'sendFriendRequest')->name("friend.sendFriendRequest");
+    Route::patch('friends/confirmfriendrequest/{user:username}', 'confirmFriendRequest')->name("friend.confirmFriendRequest");
+    Route::post('friends/cancelfriendrequest/{user:username}', 'cancelFriendRequest')->name("friend.cancelFriendRequest");
+    Route::get('friends/search/{username?}', 'searchPeople')->name("friend.search");
 });

@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 
 class Friends extends Model
 {
-    use HasFactory;
+    use HasFactory, HasEagerLimit;
 
     protected $fillable = [
         "user_id",
@@ -17,6 +18,6 @@ class Friends extends Model
 
     public function users()
     {
-        return $this->belongsToMany(User::class, 'friends', 'user_id', 'friend_id',);
+        return $this->belongsTo(User::class, 'friend_id', 'user_id');
     }
 }
