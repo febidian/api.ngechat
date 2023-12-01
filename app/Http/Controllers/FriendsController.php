@@ -16,9 +16,6 @@ class FriendsController extends Controller
     {
         return 'ok';
     }
-    public function addFriend(User $user)
-    {
-    }
     public function searchPeople(String $username = null)
     {
 
@@ -30,9 +27,18 @@ class FriendsController extends Controller
                     })
                         ->orWhereDoesntHave('userFriends');
                 })
-                ->with(["userFriends", "friendOf"])
-
-
+                ->where(function ($query) {
+                    $query->whereHas('friendOf', function ($query) {
+                        $query->where('status', false);
+                    })
+                        ->orWhereDoesntHave('friendOf');
+                })
+                ->with(["userFriends" => function ($query) {
+                    $query->where('friend_id', auth()->user()->user_id);
+                }])
+                ->with(["friendOf" => function ($query) {
+                    $query->where('user_id', auth()->user()->user_id)->get();
+                }])
                 ->where(function ($query) use ($username) {
                     $query->where('name', 'LIKE', '%' . $username . '%')
                         ->orWhere('username', 'LIKE', '%' . $username . '%');
@@ -52,9 +58,8 @@ class FriendsController extends Controller
 
     public function sendFriendRequest(User $user)
     {
-        if ($user->user_id != auth()->user()->user_id) {
+        if ($user->user_id !== auth()->user()->user_id) {
             try {
-
                 $check = Friends::where(function ($query) use ($user) {
                     $query->where('user_id', auth()->user()->user_id)
                         ->where('friend_id', $user->user_id);
@@ -64,6 +69,7 @@ class FriendsController extends Controller
                 })->exists();
 
                 if (!$check) {
+
                     Friends::create([
                         'user_id' => auth()->user()->user_id,
                         'friend_id' => $user->user_id,
@@ -79,6 +85,7 @@ class FriendsController extends Controller
             } catch (\Throwable $th) {
                 return response()->json([
                     'status' => 'failed',
+                    't' => $th
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         } else {
