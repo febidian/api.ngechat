@@ -14,22 +14,80 @@ class FriendsController extends Controller
 {
     public function index()
     {
-        return 'ok';
+        try {
+            $friends = User::where('id', '!=', auth()->user()->id)
+                ->where(function ($query) {
+                    $query->whereHas('userFriends', function ($query) {
+                        $query->where('friend_id', auth()->user()->user_id)->where('status', true);
+                    });
+                })
+                ->orWhere(function ($query) {
+                    $query->whereHas('friendOf', function ($query) {
+                        $query->where('user_id', auth()->user()->user_id)->where('status', true);
+                    });
+                })
+                ->orderBy('name', 'asc')
+                ->paginate(10);
+
+            return response()->json([
+                'friends' => UserResource::collection($friends)->response()->getData(),
+                'status' => 'success'
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'failed'
+            ], Response::HTTP_BAD_REQUEST);
+        }
     }
+
+    public function searchFriend(String $username = null)
+    {
+        try {
+            $friends = User::where('id', '!=', auth()->user()->id)
+                ->where(function ($query) {
+                    $query->whereHas('userFriends', function ($query) {
+                        $query->where('friend_id', auth()->user()->user_id)->where('status', true);
+                    })->orWhereHas('friendOf', function ($query) {
+                        $query->where('user_id', auth()->user()->user_id)->where('status', true);
+                    });
+                })
+                ->where(function ($query) use ($username) {
+                    $query->where('name', 'LIKE', '%' . $username . '%')
+                        ->orWhere('username', 'LIKE', '%' . $username . '%');
+                })
+                ->orderBy('name', 'asc')
+                ->limit(4)->get();
+
+            return response()->json([
+                'friends' => UserResource::collection($friends),
+                'status' => 'success'
+            ], Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json([
+                'status' => 'failed'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
     public function searchPeople(String $username = null)
     {
-
         try {
             $result = User::where('id', '!=', auth()->user()->id)
                 ->where(function ($query) {
                     $query->whereHas('userFriends', function ($query) {
-                        $query->where('status', false);
+                        $query->where(function ($q) {
+                            $q->where('status', false)
+                                ->orWhere('status', true)->where('friend_id', '!=', auth()->user()->user_id);
+                        });
                     })
                         ->orWhereDoesntHave('userFriends');
                 })
                 ->where(function ($query) {
                     $query->whereHas('friendOf', function ($query) {
-                        $query->where('status', false);
+                        $query->where(function ($q) {
+                            $q->where('status', false)
+                                ->orWhere('status', true)->where('user_id', '!=', auth()->user()->user_id);
+                        });
                     })
                         ->orWhereDoesntHave('friendOf');
                 })
@@ -37,21 +95,22 @@ class FriendsController extends Controller
                     $query->where('friend_id', auth()->user()->user_id);
                 }])
                 ->with(["friendOf" => function ($query) {
-                    $query->where('user_id', auth()->user()->user_id)->get();
+                    $query->where('user_id', auth()->user()->user_id);
                 }])
                 ->where(function ($query) use ($username) {
                     $query->where('name', 'LIKE', '%' . $username . '%')
                         ->orWhere('username', 'LIKE', '%' . $username . '%');
                 })
-                ->paginate(6);
+                ->limit('5')->get();
 
             return response()->json([
-                'people' => SearchPeopleResource::collection($result)->response()->getData(),
+                'people' => SearchPeopleResource::collection($result),
                 'message' => 'success',
             ], Response::HTTP_OK);
         } catch (QueryException $th) {
             return response()->json([
                 'message' => 'failed',
+                'th' => $th
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
