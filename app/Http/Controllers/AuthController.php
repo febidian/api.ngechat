@@ -17,7 +17,7 @@ class AuthController extends Controller
     public function register(Request $request)
     {
         $credentials = $request->validate([
-            "name" => ['required'],
+            "name" => ['required', 'min:3', 'max:15'],
             "email" => ['required', 'email', 'unique:users,email'],
             "password" => ["required", "confirmed", "min:8"]
         ]);
@@ -71,14 +71,6 @@ class AuthController extends Controller
             'status' => 'success',
         ], Response::HTTP_OK);
     }
-
-    public function me()
-    {
-        return response()->json([
-            "user" => new UserResource(Auth::user())
-        ]);
-    }
-
     public function refresh()
     {
         $token = auth()->refresh();

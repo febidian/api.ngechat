@@ -14,7 +14,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, BroadcastsEvents, HasEagerLimit;
+    use HasApiTokens, HasFactory, Notifiable, HasEagerLimit;
 
     /**
      * The attributes that are mass assignable.
@@ -24,8 +24,11 @@ class User extends Authenticatable implements JWTSubject
     protected $fillable = [
         'name',
         'username',
+        'small_image',
+        'big_image',
         'email',
         'password',
+        'change_password_at',
         'chats_id',
         'created_at',
         'updated_at',
