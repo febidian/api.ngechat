@@ -30,7 +30,7 @@ class ProfileController extends Controller
         try {
             $user = User::where('id', auth()->user()->id)->firstOrFail();
             $request->validate([
-                'name' => ['required', 'min:3', 'max:15'],
+                'name' => ['required', 'min:3', 'max:15', 'regex:/^[a-zA-Z\s]+$/', 'string'],
                 'username' => ['required', 'min:3', 'max:13', 'regex:/^[A-Za-z0-9_.]+$/', Rule::unique('users', 'username')->ignore($user->id)],
                 'image' => ['nullable', 'mimes:jpeg,png,jpg', 'max:2048']
             ]);

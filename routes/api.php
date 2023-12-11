@@ -38,5 +38,5 @@ Route::controller(ProfileController::class)->prefix('profile')->middleware('auth
     Route::get('me', 'me')->name('profile.me');
     Route::put('update', 'update')->name('profile.update');
     Route::get('username/{username?}', 'username')->name('profile.username');
-    Route::patch('changepassword', 'changepassword')->middleware(CheckPasswordChangeTime::class)->name('profile.changepassword');
+    Route::patch('changepassword', 'changepassword')->middleware('checkpasswordchangetime')->name('profile.changepassword');
 });
