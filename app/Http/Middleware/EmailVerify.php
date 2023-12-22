@@ -20,6 +20,7 @@ class EmailVerify
         if (Auth::user()->email_verified_at === null) {
             return response()->json([
                 'message' => "You must perform email verification",
+                'type' => 'verify',
                 'status' => 'failed'
             ], Response::HTTP_FORBIDDEN);
         }
