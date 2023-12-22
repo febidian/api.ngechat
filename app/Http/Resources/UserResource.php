@@ -20,6 +20,7 @@ class UserResource extends JsonResource
             "email" => $this->email,
             'username' => $this->username,
             'user_id' => $this->user_id,
+            'email_verified_at' => $this->email_verified_at,
             'small_image' => $this->small_image ? Storage::url($this->small_image) : null,
             'big_image' => $this->big_image ? Storage::url($this->big_image) : null,
         ];

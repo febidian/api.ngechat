@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
 use Illuminate\Database\Eloquent\BroadcastsEvents;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,7 +12,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Staudenmeir\EloquentEagerLimit\HasEagerLimit;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 {
     use HasApiTokens, HasFactory, Notifiable, HasEagerLimit;
 
@@ -28,6 +28,7 @@ class User extends Authenticatable implements JWTSubject
         'big_image',
         'email',
         'password',
+        'user_id',
         'change_password_at',
         'chats_id',
         'created_at',

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\UserResource;
+use App\Jobs\EmailVerify;
+use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Events\Validated;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -16,22 +19,25 @@ class AuthController extends Controller
 {
     public function register(Request $request)
     {
-        $credentials = $request->validate([
+        $request->validate([
             "name" => ['required', 'min:3', 'max:15', 'regex:/^[a-zA-Z\s]+$/', 'string'],
             "email" => ['required', 'email', 'unique:users,email'],
             "password" => ["required", "confirmed", "min:8"]
         ]);
 
         try {
-            DB::table('users')->insert([
-                'name' => $credentials['name'],
-                'email' => $credentials['email'],
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
                 'username' => Str::random(8),
-                'password' => bcrypt($credentials['password']),
+                'password' => bcrypt($request->password),
                 'user_id' => Str::uuid(),
-                'created_at' => now(),
-                'updated_at' => now()
+
             ]);
+            // $user->sendEmailVerificationNotification();
+            // new Registered($user);
+            // EmailVerify::dispatch($user);
             return response()->json([
                 'status' => 'success',
                 'message' => 'Successfully registered'

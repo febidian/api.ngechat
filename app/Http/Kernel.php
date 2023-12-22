@@ -66,7 +66,8 @@ class Kernel extends HttpKernel
         'signed' => \App\Http\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
-        'checkpasswordchangetime' => \App\Http\Middleware\CheckPasswordChangeTime::class
+        'checkpasswordchangetime' => \App\Http\Middleware\CheckPasswordChangeTime::class,
+        'email_verif' => \App\Http\Middleware\EmailVerify::class
 
     ];
 }
