@@ -35,17 +35,16 @@ class AuthController extends Controller
                 'user_id' => Str::uuid(),
 
             ]);
-            // $user->sendEmailVerificationNotification();
-            // new Registered($user);
-            // EmailVerify::dispatch($user);
             return response()->json([
                 'status' => 'success',
-                'message' => 'Successfully registered'
+                'messages' => [
+                    'registration' => 'Registration successful.',
+                    'verification' => 'Check your email for verification email.',
+                ]
             ], Response::HTTP_CREATED);
         } catch (QueryException $th) {
             return response()->json([
                 'status' => 'error',
-                'message' => $th->getMessage(),
             ], Response::HTTP_BAD_REQUEST);
         }
     }
