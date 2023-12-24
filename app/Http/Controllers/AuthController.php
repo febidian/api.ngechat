@@ -61,7 +61,7 @@ class AuthController extends Controller
 
         if (!$token = auth()->attempt($credentials)) {
             return response()->json([
-                'status' => 'success',
+                'status' => 'failed',
                 'errors' => [
                     'email' => ['These credentials do not match our records.'],
                 ],
