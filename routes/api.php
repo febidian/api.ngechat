@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EmailVerificationController;
+use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -12,6 +13,12 @@ Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('login', 'login')->name('auth.login');
     Route::post('refresh', 'refresh')->name('auth.refresh');
     Route::post('logout', 'logout')->middleware(['auth:api'])->name('auth.logout');
+});
+
+Route::controller(ForgotPasswordController::class)->prefix('auth')->group(function () {
+    Route::post('reset/password', 'sendResetPassword')->middleware(['throttle:7,30'])->name('auth.send_reset_password');
+    Route::post('reset/password/confirm/{token}', 'confirmResetPassowrd')->name('auth.confirm_reset_passowrd');
+    Route::get('reset/password/check/{token}', 'checkToken')->middleware(['throttle:10,1'])->name('auth.check_token');
 });
 
 Route::controller(EmailVerificationController::class)->middleware('auth:api')->group(function () {
