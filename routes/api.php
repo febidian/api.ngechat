@@ -26,14 +26,6 @@ Route::controller(EmailVerificationController::class)->middleware('auth:api')->g
     Route::get('email/resend', 'resend')->name('email.verif')->middleware(['throttle:1,2']);
 });
 
-Route::controller(ChatController::class)->middleware(('auth:api'))
-    ->group(function () {
-        Route::post('chat/{user:username}', 'store')->name('chat.store');
-    });
-
-
-
-
 
 Route::controller(FriendsController::class)->middleware(['auth:api', 'email_verif'])->group(function () {
     Route::get('friends', 'index')->name("friend.index");
@@ -49,4 +41,9 @@ Route::controller(ProfileController::class)->prefix('profile')->middleware(['aut
     Route::put('update', 'update')->name('profile.update');
     Route::get('username/{username?}', 'username')->name('profile.username');
     Route::patch('changepassword', 'changepassword')->middleware('checkpasswordchangetime')->name('profile.changepassword');
+});
+
+Route::controller(ChatController::class)->prefix('chat')->middleware(['auth:api', 'email_verif'])->group(function () {
+    Route::post('/{user:user_id}', 'store')->name('chat.store');
+    Route::get('/{user:user_id}', 'showChat')->name('chat.show');
 });

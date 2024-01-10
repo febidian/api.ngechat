@@ -20,9 +20,11 @@ class MessageEvent implements ShouldBroadcast
      */
 
     public $message;
+
     public function __construct($message)
     {
         $this->message = $message;
+        info($this->message);
     }
 
     /**
@@ -30,10 +32,8 @@ class MessageEvent implements ShouldBroadcast
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): array
+    public function broadcastOn(): Channel
     {
-        return [
-            new PrivateChannel('channel-name'),
-        ];
+        return new PrivateChannel('chats.' . $this->message->receiver_id);
     }
 }

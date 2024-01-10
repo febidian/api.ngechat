@@ -14,7 +14,7 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 
 class User extends Authenticatable implements MustVerifyEmail, JWTSubject
 {
-    use HasApiTokens, HasFactory, Notifiable, HasEagerLimit;
+    use HasApiTokens, HasFactory, Notifiable, HasEagerLimit, BroadcastsEvents;
 
     /**
      * The attributes that are mass assignable.
