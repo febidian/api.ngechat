@@ -27,7 +27,7 @@ class FriendsController extends Controller
                     });
                 })
                 ->orderBy('name', 'asc')
-                ->paginate(10);
+                ->paginate(20);
 
             return response()->json([
                 'friends' => UserResource::collection($friends)->response()->getData(),
@@ -188,6 +188,32 @@ class FriendsController extends Controller
         } catch (\Throwable $th) {
             return response()->json([
                 'status' => 'failed'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+    }
+
+    public function friendProfile($user_id)
+    {
+        try {
+            $friendProfile = User::where('id', '!=', auth()->user()->id)
+                ->where(function ($query) {
+                    $query->whereHas('userFriends', function ($query) {
+                        $query->where('friend_id', auth()->user()->user_id)->where('status', true);
+                    })->orWhereHas('friendOf', function ($query) {
+                        $query->where('user_id', auth()->user()->user_id)->where('status', true);
+                    });
+                })
+                ->where('user_id', $user_id)
+                ->first();
+
+            return response()->json([
+                'user' => new UserResource($friendProfile),
+                'status' => 'success'
+            ], Response::HTTP_OK);
+        } catch (QueryException $th) {
+            return response()->json([
+                'status' => 'failed',
+                'tg' => $th
             ], Response::HTTP_BAD_REQUEST);
         }
     }

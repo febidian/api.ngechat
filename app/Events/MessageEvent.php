@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Http\Resources\ChatsResource;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -11,7 +12,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageEvent implements ShouldBroadcast
+class MessageEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -24,9 +25,13 @@ class MessageEvent implements ShouldBroadcast
     public function __construct($message)
     {
         $this->message = $message;
-        info($this->message);
+        // info($this->message);
     }
 
+    public function broadcastWith(): array
+    {
+        return ChatsResource::make($this->message)->response()->getData(true);
+    }
     /**
      * Get the channels the event should broadcast on.
      *

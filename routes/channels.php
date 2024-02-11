@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Broadcast;
 
@@ -14,8 +15,11 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('chats.{id}', function ($user, $id) {
-    // return (int) $user->id === (int) $id;
+Broadcast::channel('chats.{receiver_id}', function (User $user, $receiver_id) {
 
-    return Auth::check();
+    return (int) $user->user_id === (int) $receiver_id;
+});
+
+Broadcast::channel('sortlisfriendchat.{friend_id}', function (User $user, $friend_id) {
+    return (int) $user->user_id === (int) $friend_id;
 });

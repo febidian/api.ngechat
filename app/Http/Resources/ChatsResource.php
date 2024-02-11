@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -15,10 +16,19 @@ class ChatsResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'chat_id' => $this->chat_id,
             'sender_id' => $this->sender_id,
             'receiver_id' => $this->receiver_id,
-            'created_at' => date_format($this->created_at, 's'),
+            'message' => $this->message,
+            'created_at' => $this->formattedCreatedAt(),
         ];
+    }
+
+    protected function formattedCreatedAt()
+    {
+
+        $carbonCreatedAt = Carbon::parse($this->created_at);
+
+
+        return $carbonCreatedAt->format('h:i A');
     }
 }

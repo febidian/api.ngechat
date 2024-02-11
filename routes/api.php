@@ -6,7 +6,10 @@ use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\FriendsController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
+
+
 
 Route::controller(AuthController::class)->prefix('auth')->group(function () {
     Route::post('register', 'register')->name('auth.register');
@@ -33,6 +36,7 @@ Route::controller(FriendsController::class)->middleware(['auth:api', 'email_veri
     Route::post('friends/sendfriendrequest/{user:username?}', 'sendFriendRequest')->name("friend.sendFriendRequest");
     Route::patch('friends/confirmfriendrequest/{user:username}', 'confirmFriendRequest')->name("friend.confirmFriendRequest");
     Route::post('friends/cancelfriendrequest/{user:username}', 'cancelFriendRequest')->name("friend.cancelFriendRequest");
+    Route::get('friends/profile/{user_id}', 'friendProfile')->name("friend.friendProfile");
     Route::get('friends/search/{username?}', 'searchPeople')->name("friend.search");
 });
 
@@ -44,6 +48,7 @@ Route::controller(ProfileController::class)->prefix('profile')->middleware(['aut
 });
 
 Route::controller(ChatController::class)->prefix('chat')->middleware(['auth:api', 'email_verif'])->group(function () {
-    Route::post('/{user:user_id}', 'store')->name('chat.store');
-    Route::get('/{user:user_id}', 'showChat')->name('chat.show');
+    Route::get('list', 'loadChat')->name('chat.loadchat');
+    Route::post('{user:user_id}', 'store')->name('chat.store');
+    Route::get('{user:user_id}', 'showChat')->name('chat.show');
 });
