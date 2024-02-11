@@ -27,7 +27,7 @@ class FriendsController extends Controller
                     });
                 })
                 ->orderBy('name', 'asc')
-                ->paginate(20);
+                ->paginate(30);
 
             return response()->json([
                 'friends' => UserResource::collection($friends)->response()->getData(),

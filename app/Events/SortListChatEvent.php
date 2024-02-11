@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Http\Resources\ChatsResource;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -12,7 +11,7 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageEvent implements ShouldBroadcastNow
+class SortListChatEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -20,24 +19,26 @@ class MessageEvent implements ShouldBroadcastNow
      * Create a new event instance.
      */
 
-    public $message;
-
-    public function __construct($message)
+    public $sort;
+    public function __construct($sort)
     {
-        $this->message = $message;
+        $this->sort = $sort;
+        info($this->sort);
     }
 
-    public function broadcastWith(): array
+    public function broadcastAs()
     {
-        return ChatsResource::make($this->message)->response()->getData(true);
+        return "sortlistFriendchat";
     }
     /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): Channel
+    public function broadcastOn(): array
     {
-        return new PrivateChannel('chats.' . $this->message->receiver_id);
+        return [
+            new PrivateChannel('sortlisfriendchat.' . $this->sort->friend_id),
+        ];
     }
 }

@@ -30,7 +30,6 @@ class ChatController extends Controller
 
     public function showChat(User $user)
     {
-        // return $user;
         $chat = Chat::where(function ($q) use ($user) {
             $q->where('sender_id', Auth::user()->user_id)->where('receiver_id', $user->user_id);
         })->orWhere(function ($q) use ($user) {
