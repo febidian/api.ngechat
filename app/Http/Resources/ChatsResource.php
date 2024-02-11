@@ -21,7 +21,7 @@ class ChatsResource extends JsonResource
             'message' => $this->message,
             'status_read' => $this->status_read,
             'created_at_hours' => $this->formattedCreatedAt(),
-            'created_at' => $this->created_at->format('m/d/Y'),
+            'created_at' => $this->created_at->format('d/m/Y'),
 
         ];
     }
