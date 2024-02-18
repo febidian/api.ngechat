@@ -21,12 +21,12 @@ class Chat extends Model
         'updated_at',
     ];
 
-    protected static function booted()
-    {
-        static::creating(function ($chat) {
-            $chat->chat_id = Str::uuid();
-        });
-    }
+    // protected static function booted()
+    // {
+    //     static::creating(function ($chat) {
+    //         $chat->chat_id = Str::uuid();
+    //     });
+    // }
 
     public function sender()
     {

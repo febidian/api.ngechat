@@ -23,7 +23,6 @@ class SortListChatEvent implements ShouldBroadcastNow
     public function __construct($sort)
     {
         $this->sort = $sort;
-        info($this->sort);
     }
 
     public function broadcastAs()

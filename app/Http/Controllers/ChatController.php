@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Events\MessageEvent;
+use App\Events\StatusEvent;
 use App\Http\Resources\ChatsResource;
 use App\Http\Resources\List_ChatResource;
 use App\Models\Chat;
@@ -18,6 +19,7 @@ class ChatController extends Controller
     public function store(Request $request, Chat $chat, User $user)
     {
         $chats = Chat::create([
+            'chat_id' => $request->chat_id,
             'sender_id' => Auth::user()->user_id,
             'receiver_id' => $user->user_id,
             'message' => $request->message,
@@ -26,6 +28,10 @@ class ChatController extends Controller
         ]);
 
         broadcast(new MessageEvent($chats))->toOthers();
+
+        return response()->json([
+            'status' => 'success',
+        ], Response::HTTP_OK);
     }
 
     public function showChat(User $user)
@@ -63,5 +69,17 @@ class ChatController extends Controller
                 'status' => 'failed'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public function updateStatusRead(Request $request)
+    {
+        $idList = $request->input('idList');
+
+        $updateStatusRead = Chat::whereIn('chat_id', $idList)->update(['status_read' => true]);
+
+
+        broadcast(new StatusEvent(end($idList)))->toOthers();
+
+        return response()->json(['status' => 'success'], 200);
     }
 }

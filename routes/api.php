@@ -49,6 +49,7 @@ Route::controller(ProfileController::class)->prefix('profile')->middleware(['aut
 
 Route::controller(ChatController::class)->prefix('chat')->middleware(['auth:api', 'email_verif'])->group(function () {
     Route::get('list', 'loadChat')->name('chat.loadchat');
+    Route::post('update-status-read', 'updateStatusRead')->name('chat.updateStatusRead');
     Route::post('{user:user_id}', 'store')->name('chat.store');
     Route::get('{user:user_id}', 'showChat')->name('chat.show');
 });

@@ -2,7 +2,6 @@
 
 namespace App\Events;
 
-use App\Http\Resources\ChatsResource;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PresenceChannel;
@@ -12,36 +11,31 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class MessageEvent implements ShouldBroadcastNow
+class StatusEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     /**
      * Create a new event instance.
      */
-
-    public $message;
-
-    public function __construct($message)
+    public $chat_id;
+    public function __construct($chat_id)
     {
-        $this->message = $message;
-        info($message);
+        $this->chat_id = $chat_id;
+        // info($id);
     }
 
-    public function broadcastWith(): array
+    public function broadcastAs()
     {
-        return ChatsResource::make($this->message)->response()->getData(true);
+        return "statusFriend";
     }
     /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): array
+    public function broadcastOn(): Channel
     {
-        return [
-            new PrivateChannel('chats.' . $this->message->receiver_id),
-            new PrivateChannel('statusUser.' . $this->message->sender_id),
-        ];
+        return new PrivateChannel('statusUser', $this->chat_id);
     }
 }
