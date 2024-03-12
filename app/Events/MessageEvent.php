@@ -25,7 +25,7 @@ class MessageEvent implements ShouldBroadcastNow
     public function __construct($message)
     {
         $this->message = $message;
-        info($message);
+        // info($message);
     }
 
     public function broadcastWith(): array
@@ -41,7 +41,6 @@ class MessageEvent implements ShouldBroadcastNow
     {
         return [
             new PrivateChannel('chats.' . $this->message->receiver_id),
-            new PrivateChannel('statusUser.' . $this->message->sender_id),
         ];
     }
 }

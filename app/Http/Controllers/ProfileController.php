@@ -36,10 +36,10 @@ class ProfileController extends Controller
             ]);
 
             if ($request->hasFile('image')) {
-                if ($user->small_image && $user->big_image) {
-                    Storage::delete($user->small_image);
-                    Storage::delete($user->big_image);
-                }
+                // if ($user->small_image && $user->big_image) {
+                //     // Storage::delete($user->small_image);
+                //     Storage::delete($user->big_image);
+                // }
                 $small_image = $request->file('image')->store('profile/small');
                 $big_small = $request->file('image')->store('profile/big');
                 $resizeSmall = Image::make(public_path("storage/{$small_image}"));

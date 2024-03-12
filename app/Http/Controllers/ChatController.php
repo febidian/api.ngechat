@@ -13,6 +13,7 @@ use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\Mailer\Event\MessageEvents;
 
 class ChatController extends Controller
 {
@@ -42,7 +43,7 @@ class ChatController extends Controller
             $q->where('sender_id', $user->user_id)->where('receiver_id', Auth::user()->user_id);
         })
             ->orderBy('created_at', 'desc')
-            ->paginate(15);
+            ->paginate(30);
 
 
         return response()->json([
@@ -75,10 +76,11 @@ class ChatController extends Controller
     {
         $idList = $request->input('idList');
 
-        $updateStatusRead = Chat::whereIn('chat_id', $idList)->update(['status_read' => true]);
+        Chat::whereIn('chat_id', $idList)->update(['status_read' => true]);
 
+        $chat = Chat::where('chat_id', end($idList))->first();
 
-        broadcast(new StatusEvent(end($idList)))->toOthers();
+        broadcast(new StatusEvent($chat))->toOthers();
 
         return response()->json(['status' => 'success'], 200);
     }

@@ -5,6 +5,7 @@ use App\Http\Controllers\ChatController;
 use App\Http\Controllers\EmailVerificationController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\FriendsController;
+use App\Http\Controllers\NotificationsController;
 use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
@@ -33,9 +34,9 @@ Route::controller(EmailVerificationController::class)->middleware('auth:api')->g
 Route::controller(FriendsController::class)->middleware(['auth:api', 'email_verif'])->group(function () {
     Route::get('friends', 'index')->name("friend.index");
     Route::get('friends/searchfriend/{username?}', 'searchFriend')->name("friend.searchFriend");
-    Route::post('friends/sendfriendrequest/{user:username?}', 'sendFriendRequest')->name("friend.sendFriendRequest");
-    Route::patch('friends/confirmfriendrequest/{user:username}', 'confirmFriendRequest')->name("friend.confirmFriendRequest");
-    Route::post('friends/cancelfriendrequest/{user:username}', 'cancelFriendRequest')->name("friend.cancelFriendRequest");
+    Route::post('friends/sendfriendrequest/{user:username?}', 'sendFriendRequest')->middleware(['throttle:5,1'])->name("friend.sendFriendRequest");
+    Route::patch('friends/confirmfriendrequest/{user:username}/{id?}', 'confirmFriendRequest')->name("friend.confirmFriendRequest");
+    Route::post('friends/cancelfriendrequest/{user:username}/{id?}', 'cancelFriendRequest')->name("friend.cancelFriendRequest");
     Route::get('friends/profile/{user_id}', 'friendProfile')->name("friend.friendProfile");
     Route::get('friends/search/{username?}', 'searchPeople')->name("friend.search");
 });
@@ -52,4 +53,9 @@ Route::controller(ChatController::class)->prefix('chat')->middleware(['auth:api'
     Route::post('update-status-read', 'updateStatusRead')->name('chat.updateStatusRead');
     Route::post('{user:user_id}', 'store')->name('chat.store');
     Route::get('{user:user_id}', 'showChat')->name('chat.show');
+});
+
+Route::controller(NotificationsController::class)->prefix('notifications')->middleware(['auth:api', 'email_verif'])->group(function () {
+    Route::get('/', 'index')->name('notifications.index');
+    Route::put('read', 'NotficationsRead')->name('notifications.read');
 });

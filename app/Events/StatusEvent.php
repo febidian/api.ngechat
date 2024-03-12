@@ -18,24 +18,26 @@ class StatusEvent implements ShouldBroadcastNow
     /**
      * Create a new event instance.
      */
-    public $chat_id;
-    public function __construct($chat_id)
+    public $chat;
+    public function __construct($chat)
     {
-        $this->chat_id = $chat_id;
-        // info($id);
+        $this->chat = $chat;
     }
 
-    public function broadcastAs()
-    {
-        return "statusFriend";
-    }
+    // public function broadcastAs()
+    // {
+    //     return "statusFriend";
+    // }
     /**
      * Get the channels the event should broadcast on.
      *
      * @return array<int, \Illuminate\Broadcasting\Channel>
      */
-    public function broadcastOn(): Channel
+    public function broadcastOn(): array
     {
-        return new PrivateChannel('statusUser', $this->chat_id);
+        return [
+            new PrivateChannel('statusUser.' . $this->chat->sender_id),
+            new PrivateChannel('statusUserTyping.' . $this->chat->receiver_id),
+        ];
     }
 }

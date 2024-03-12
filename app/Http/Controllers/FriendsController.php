@@ -6,9 +6,13 @@ use App\Http\Resources\SearchPeopleResource;
 use App\Http\Resources\UserResource;
 use App\Models\Friends;
 use App\Models\User;
+use App\Notifications\AddFriend;
+use App\Notifications\ConfirmFriend;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class FriendsController extends Controller
 {
@@ -129,10 +133,17 @@ class FriendsController extends Controller
 
                 if (!$check) {
 
-                    Friends::create([
+                    $addFriend = Friends::create([
                         'user_id' => auth()->user()->user_id,
                         'friend_id' => $user->user_id,
+                        'status' => false
                     ]);
+
+                    if ($addFriend) {
+                        $me = Auth::user();
+                        $user->notify(new AddFriend($me, $addFriend->status));
+                    }
+
                     return response()->json([
                         'status' => 'success'
                     ], Response::HTTP_CREATED);
@@ -141,10 +152,10 @@ class FriendsController extends Controller
                         'status' => 'failed',
                     ], Response::HTTP_BAD_GATEWAY);
                 }
-            } catch (\Throwable $th) {
+            } catch (QueryException $th) {
                 return response()->json([
                     'status' => 'failed',
-                    't' => $th
+                    'th' => $th
                 ], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
         } else {
@@ -154,38 +165,78 @@ class FriendsController extends Controller
         }
     }
 
-    public function confirmFriendRequest(User $user)
+    public function confirmFriendRequest(User $user, $id = null)
     {
         try {
-            Friends::where('user_id', $user->user_id)
-                ->where('friend_id', auth()->user()->user_id)
-                ->update([
-                    'status' => true
-                ]);
+            $select = Friends::where('user_id', $user->user_id)
+                ->where('friend_id', auth()->user()->user_id)->firstOrFail();
+            $select->update([
+                'status' => true
+            ]);
+
+            if ($select) {
+                if ($id) {
+                    DB::table('notifications')->where('id', $id)
+                        ->update([
+                            'data' => DB::raw("JSON_SET(data, '$.status', true)"),
+                        ]);
+                }
+
+                $me = Auth::user();
+                $user->notify(new ConfirmFriend($me));
+            }
             return response()->json([
                 'status' => 'success'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
+            if ($id) {
+                DB::table('notifications')->where('id', $id)
+                    ->update([
+                        'data' => DB::raw("JSON_SET(data, '$.status', 'cancel')"),
+                    ]);
+            }
             return response()->json([
                 'status' => 'failed'
             ], Response::HTTP_BAD_REQUEST);
         }
     }
 
-    public function cancelFriendRequest(User $user)
+    public function cancelFriendRequest(User $user, $id = null)
     {
         try {
-            Friends::where(function ($query) use ($user) {
+            $result = Friends::where(function ($query) use ($user) {
                 $query->where('user_id', auth()->user()->user_id)
                     ->where('friend_id', $user->user_id);
             })->orWhere(function ($query) use ($user) {
                 $query->where('user_id',  $user->user_id)
                     ->where('friend_id', auth()->user()->user_id);
-            })->delete();
+            })->firstOrFail();
+
+            $result->delete();
+
+            DB::table('notifications')
+                ->where('type', 'App\Notifications\AddFriend')
+                ->where('notifiable_id', $user->id)
+                ->where('data->user_id', auth()->user()->user_id)->delete();
+
+            if ($result) {
+                if ($id) {
+                    DB::table('notifications')->where('id', $id)
+                        ->update([
+                            'data' => DB::raw("JSON_SET(data, '$.status', null)"),
+                        ]);
+                }
+            }
             return response()->json([
                 'status' => 'success'
             ], Response::HTTP_OK);
         } catch (\Throwable $th) {
+            if ($id) {
+                DB::table('notifications')->where('id', $id)
+                    ->update([
+                        'data' => DB::raw("JSON_SET(data, '$.status', 'cancel')"),
+                    ]);
+            }
             return response()->json([
                 'status' => 'failed'
             ], Response::HTTP_BAD_REQUEST);
