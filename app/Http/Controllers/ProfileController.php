@@ -82,16 +82,6 @@ class ProfileController extends Controller
         }
     }
 
-    public function username(String $username)
-    {
-        $result = User::where('username', $username);
-        if ($result) {
-            return 'ok';
-        } else {
-            return 'not ok';
-        }
-    }
-
 
     public function changepassword(Request $request)
     {

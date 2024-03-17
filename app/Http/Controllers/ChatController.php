@@ -17,12 +17,12 @@ use Symfony\Component\Mailer\Event\MessageEvents;
 
 class ChatController extends Controller
 {
-    public function store(Request $request, Chat $chat, User $user)
+    public function store(Request $request, $user_id)
     {
         $chats = Chat::create([
             'chat_id' => $request->chat_id,
             'sender_id' => Auth::user()->user_id,
-            'receiver_id' => $user->user_id,
+            'receiver_id' => $user_id,
             'message' => $request->message,
             'created_at' => $request->created_at,
             'updated_at' => $request->updated_at,
@@ -35,12 +35,12 @@ class ChatController extends Controller
         ], Response::HTTP_OK);
     }
 
-    public function showChat(User $user)
+    public function showChat(Chat $chat, $user_id)
     {
-        $chat = Chat::where(function ($q) use ($user) {
-            $q->where('sender_id', Auth::user()->user_id)->where('receiver_id', $user->user_id);
-        })->orWhere(function ($q) use ($user) {
-            $q->where('sender_id', $user->user_id)->where('receiver_id', Auth::user()->user_id);
+        $chat = Chat::where(function ($q) use ($user_id) {
+            $q->where('sender_id', Auth::user()->user_id)->where('receiver_id', $user_id);
+        })->orWhere(function ($q) use ($user_id) {
+            $q->where('sender_id', $user_id)->where('receiver_id', Auth::user()->user_id);
         })
             ->orderBy('created_at', 'desc')
             ->paginate(30);
